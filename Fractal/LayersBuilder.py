@@ -4,6 +4,7 @@ import math
 from LeastSquares import LeastSquares
 from Structures import *
 from Layers import Layer
+import time
 
 # Самая главная проблема может быть в приведении типов и потери точности, так как
 # я пока не очень понимаю, как тут все устроено и нет Double.
@@ -15,7 +16,6 @@ class LayersBuilder:
     def __init__(self):
         pass
 
-    maxWindowSize = 7
 
     # Двумерный массив плотности
     __Densities = np.array([])
@@ -36,13 +36,16 @@ class LayersBuilder:
         self.__Intensity = np.zeros((image.shape[0], image.shape[1]), float)
 
         # заполняем матрицу интенсивности
+
         self.calculateIntensities(image, converterType)
 
         # заполняем матрицу плотности
+        start_time = time.time()
         self.__calculateDensity(image)
+        print("--- %s seconds ---" % (time.time() - start_time))
 
         densityValues = self.__Densities
-        return Interval(np.max(densityValues), np.min(densityValues))
+        return Interval(np.amax(densityValues), np.amin(densityValues))
 
     # /// <summary>
     # /// Определение множеств уровня исходного изображения
@@ -81,8 +84,8 @@ class LayersBuilder:
         height = self.__Intensity.shape[1]
 
         self.__Densities = np.array([[None] * width] * height)
-        for i in range(0, width):
-            for j in range(0, height):
+        for i in range(0, height):
+            for j in range(0, width):
                 point = Point(i, j)
                 density = self.__calculateDensityInPoint(point, image)
                 self.__Densities[point.x, point.y] = density
@@ -95,7 +98,7 @@ class LayersBuilder:
 
     def __calculateDensityInPoint(self, point, image):
         points = list()
-        window = [2, 3, 4, 5, 6, 7]
+        window = [2, 3, 4, 6, 7]
         for windowSize in window:
             intens = self.__calculateIntensity(point, windowSize, image)
             x = math.log2(2 * windowSize + 1)

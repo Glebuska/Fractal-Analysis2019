@@ -15,7 +15,7 @@ class LeastSquares:
             xsum += point[0]
             ysum += point[1]
             xsqrsum = point[0] * point[0]
-            xysum = point[1] * point[1]
+            xysum = point[0] * point[1]
         return 1.0 * (n * xysum - xsum * ysum) / (n * xsqrsum - xsum * xsum)
 
 
