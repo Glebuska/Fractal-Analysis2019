@@ -80,6 +80,7 @@ class LayersBuilder:
     # /// </summary>
 
     def __calculateDensity(self, image):
+        start_time = time.time()
         width = self.__Intensity.shape[0]
         height = self.__Intensity.shape[1]
 
@@ -89,6 +90,7 @@ class LayersBuilder:
                 point = Point(i, j)
                 density = self.__calculateDensityInPoint(point, image)
                 self.__Densities[point.x, point.y] = density
+        print("--- %s seconds of __calculateIntensity ---" % (time.time() - start_time))
 
     # /// <summary>
     # /// Вычисление функции плотности в окрестности данной точки
@@ -98,13 +100,15 @@ class LayersBuilder:
 
     def __calculateDensityInPoint(self, point, image):
         points = list()
-        window = [2, 3, 4, 6, 7]
+        window = [7, 5, 4, 3, 2]
+        intens = self.__calculateIntensity(point, window, image)
         for windowSize in window:
-            intens = self.__calculateIntensity(point, windowSize, image)
+            i = 0
             x = math.log2(2 * windowSize + 1)
-            y = math.log2(intens + 1)
+            y = math.log2(intens[i] + 1)
             cord = (x, y)
             points.append(cord)
+            i += 1
         return LeastSquares.applyMethod(points)
 
     # /// <summary>
@@ -156,13 +160,15 @@ class LayersBuilder:
     # /// <param name="windowSize">Размер окна</param>
     # /// <returns>Cуммарная интенсивность пикселей в области</returns>
 
-    def __calculateIntensity(self, point, windowSize, image):
+    def __calculateIntensity(self, point, windowSizes, image):
         # При обрезании картинки выходить за положительную границу можно,
         # происходит обычное приравнивание к размеру картинки, при отрицательном числе к 0 не
         # приравнивает, поэтому пришлось делать 0
-        crop_img = image[self.__makeZeroBorder(point.x - windowSize): point.x + windowSize,
-                   self.__makeZeroBorder(point.y - windowSize): point.y + windowSize]
+        intensity = list()
+        maxWindowSize = windowSizes[0]
+        crop_img = image[self.__makeZeroBorder(point.x - maxWindowSize): point.x + maxWindowSize,
+                   self.__makeZeroBorder(point.y - maxWindowSize): point.y + maxWindowSize]
         integral_matrix = cv2.integral(crop_img)
-        intensity = integral_matrix[integral_matrix.shape[0] - 1, integral_matrix.shape[1] - 1]
-
+        for i in windowSizes:
+            intensity.append(integral_matrix[integral_matrix.shape[0] - 1, integral_matrix.shape[1] - i + 1])
         return intensity
