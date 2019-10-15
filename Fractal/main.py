@@ -1,31 +1,23 @@
 import cv2
 import os
-from converter import convertPixel
-from converter_types import ConverterType
+import time
 
-inputDirectory = "C:\Pictures"
-inputFile = "roses.jpg"
-outputDirectory = "C:\Pictures"
-outputFile = "converted_image.png"
+import converter_types
+from layers_builder import LayersBuilder
+
+import converter
 
 
 def main():
-    try:
-        input_type = int((input("Enter converter type: ")))
-    except ValueError:
-        print("Not a number")
-        return
-
+    inputDirectory = "C:\Pictures"
+    inputFile = "paris.jpg"
     path = os.path.join(inputDirectory, inputFile)
-    converter = ConverterType(input_type)
-    img = cv2.imread(path, -1)
-
-    converted_image = convertPixel(path, converter)
-
-    cv2.imshow('result', converted_image)
-    cv2.waitKey(0)
-    cv2.imwrite(os.path.join(outputDirectory, outputFile), converted_image)
-    cv2.destroyAllWindows()
+    img = cv2.imread(path, 1)
+    image = converter.convert(img, converter_types.GrayScale)
+    layersBuilder = LayersBuilder(image)
+    start_time = time.time()
+    someInterval = layersBuilder.getSingularityBounds()
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 main()

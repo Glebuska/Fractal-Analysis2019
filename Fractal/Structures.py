@@ -6,5 +6,5 @@ class Point:
 
 class Interval:
     def __init__(self, begin, end):
-        self.Begin = begin
-        self.End = end
+        self.begin = begin
+        self.end = end
