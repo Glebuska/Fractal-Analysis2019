@@ -1,6 +1,8 @@
 # /// <summary>
 # /// Множество уровня
 # /// </summary>
+
+
 class Layer:
 
     # List<Point>, #Interval SingularityBounds

@@ -16,7 +16,7 @@ def main():
     image = converter.convert(img, converter_types.GrayScale)
     layersBuilder = LayersBuilder(image)
     start_time = time.time()
-    someInterval = layersBuilder.getSingularityBounds()
+    someInterval = layersBuilder.get_singularity_bounds()
     print("--- %s seconds ---" % (time.time() - start_time))
 
 

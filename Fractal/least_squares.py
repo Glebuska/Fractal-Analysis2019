@@ -6,7 +6,7 @@
 # /// <returns>Уточнённое значение</returns>
 
 
-def applyMethod(points):
+def apply_method(points):
     n = len(points)
     x_sum = y_sum = xy_sum = x_sqr_sum = 0
     for point in points:
