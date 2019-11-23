@@ -11,8 +11,8 @@ class SpectrumBuilder:
 
     def __init__(self, img):
         self.image = img
-        self.width = img.shape[0]
-        self.height = img.shape[1]
+        self.height = img.shape[0]
+        self.width = img.shape[1]
 
     #    /// <summary>
     #    /// Вычисление мультифрактального спектра: создание уровней и измерение их размерности
@@ -47,7 +47,7 @@ class SpectrumBuilder:
         for point in layer.Points:
             layer_image[point.x, point.y] = (0, 0, 0)
         self.__save_layer_image(layer, layer_image)
-        return self.__calculate_measure(self.image)
+        return self.__calculate_measure(layer_image)
 
     # /// <summary>
     # /// Сохранение изображения множества уровня
@@ -72,12 +72,12 @@ class SpectrumBuilder:
     # /// <param name="image">Анализируемое изображение</param>
     # /// <returns>Фрактальная размерность изображения</returns>
 
-    def __calculate_measure(self, image):
+    def __calculate_measure(self, layers_img):
 
         points = list()
         windows = {2, 3, 4, 5, 6, 7}
         for window in windows:
-            intensities = self.__calculate_black_windows(window)
+            intensities = self.__calculate_black_windows(layers_img, window)
             x = math.log(1.0 / window)
             y = math.log(intensities + 1)
             points.append((x, y))
@@ -91,20 +91,21 @@ class SpectrumBuilder:
     # /// <param name="window">Размер окна</param>
     # /// <returns>Число квадратиков, имеющих внутри себя хотя бы один чёрный пиксель </returns>
 
-    def __calculate_black_windows(self, window):
+    def __calculate_black_windows(self, layers_img, window):
         black_windows = 0
 
         for i in range(0, self.height - window, window):
             for j in range(0, self.width - window, window):
-                if self.__has_black_pixel(i, j, window):
+                if self.__has_black_pixel(layers_img, i, j, window):
                     black_windows += 1
 
         return black_windows
 
-    def __has_black_pixel(self, start_x, start_y, window):
+    @staticmethod
+    def __has_black_pixel(layers_img, start_x, start_y, window):
         for i in range(start_x, start_x + window):
             for j in range(start_y, start_y + window):
-                color = self.image[i, j]
+                color = layers_img[i, j]
                 if color[0] == color[1] == color[2] == 0:
                     return True
 

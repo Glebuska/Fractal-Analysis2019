@@ -11,8 +11,8 @@ class LayersBuilder:
 
     def __init__(self, img):
         self.image = img
-        self.width = img.shape[0]
-        self.height = img.shape[1]
+        self.height = img.shape[0]
+        self.width = img.shape[1]
 
     # Двумерный массив плотности
     __Densities = np.array([])
@@ -76,11 +76,11 @@ class LayersBuilder:
     def __calculate_density_in_point(self, point):
         points = list()
         window = [2, 3, 4, 5, 7]  # максимальный размер окна?
-        densities_in_point = self.__calculate_intensity(point, window)
+        intensity = self.__calculate_intensity(point, window)
 
         for i in range(0, len(window)):
             x = math.log(2 * window[i] + 1)
-            y = math.log(densities_in_point[i] + 1)
+            y = math.log(intensity[i] + 1)
             cord = (x, y)
             points.append(cord)
         return apply_method(points)
@@ -98,12 +98,12 @@ class LayersBuilder:
         for window in windowSizes:
             intensity = 0
             start_x_coord = max(0, point.x - window) # не позволяет получить отриц значение
-            end_x_coord = min(point.x + window, self.width)
+            end_x_coord = min(point.x + window, self.height - 1)
             start_y_coord = max(0, point.y - window)
-            end_y_coord = min(point.y + window, self.height)
+            end_y_coord = min(point.y + window, self.width - 1)
 
-            for i in range(start_x_coord, end_x_coord):
-                for j in range(start_y_coord, end_y_coord):
+            for i in range(start_x_coord, end_x_coord + 1):
+                for j in range(start_y_coord, end_y_coord + 1):
                     intensity += self.image[i, j]
 
             intensities.append(intensity)

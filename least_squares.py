@@ -12,6 +12,6 @@ def apply_method(points):
     for point in points:
         x_sum += point[0]
         y_sum += point[1]
-        x_sqr_sum = point[0] * point[0]
-        xy_sum = point[0] * point[1]
+        x_sqr_sum += point[0] * point[0]
+        xy_sum += point[0] * point[1]
     return (n * xy_sum - x_sum * y_sum) / (n * x_sqr_sum - x_sum * x_sum)
