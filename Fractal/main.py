@@ -1,23 +1,32 @@
 import cv2
 import os
-import time
 
 import converter_types
 from layers_builder import LayersBuilder
+from spectrum_builder import SpectrumBuilder
 
 import converter
 
+inputDirectory = "C:\Pictures"
+inputFile = "2.jpg"
+path = os.path.join(inputDirectory, inputFile)
+img = cv2.imread(path, 1)
+
+converted_image = converter.convert(img, converter_types.GrayScaleMid)
+
 
 def main():
-    inputDirectory = "C:\Pictures"
-    inputFile = "paris.jpg"
-    path = os.path.join(inputDirectory, inputFile)
-    img = cv2.imread(path, 1)
-    image = converter.convert(img, converter_types.GrayScale)
-    layersBuilder = LayersBuilder(image)
-    start_time = time.time()
-    someInterval = layersBuilder.get_singularity_bounds()
-    print("--- %s seconds ---" % (time.time() - start_time))
+    layersBuilder = LayersBuilder(converted_image)
+
+    singularityBounds = layersBuilder.get_singularity_bounds()
+
+    layers = layersBuilder.split_by_layers(singularityBounds, 0.2)
+
+    spectrum_builder = SpectrumBuilder(img)
+
+    spectrum = spectrum_builder.calculate_spectrum(layers, singularityBounds, 0.2)
+
+    print(spectrum)
 
 
 main()
