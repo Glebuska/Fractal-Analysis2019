@@ -79,7 +79,7 @@ class LayersBuilder:
         intensity = self.__calculate_intensity(point, window)
 
         for i in range(0, len(window)):
-            x = math.log(window[i])
+            x = math.log(2 * window[i] + 1)
             y = math.log(intensity[i] + 1)
             cord = (x, y)
             points.append(cord)
