@@ -15,7 +15,6 @@ class SpectrumBuilder:
         self.width = img.shape[1]
 
     max_window_size = 7
-
     #    /// <summary>
     #    /// Вычисление мультифрактального спектра: создание уровней и измерение их размерности
     #    /// </summary>
@@ -49,7 +48,6 @@ class SpectrumBuilder:
 
         for point in layer.Points:
             layer_image[point.x, point.y] = (0, 0, 0)
-
         self.__save_layer_image(layer, layer_image)
         return self.__calculate_measure(layer_image)
 

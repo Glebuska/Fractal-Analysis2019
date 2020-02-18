@@ -21,7 +21,6 @@ class LayersBuilder:
 
     @staticmethod
     def get_singularity_bounds(densityValues):
-
         return Interval(np.amin(densityValues), np.amax(densityValues))
 
     # /// <summary>
@@ -79,7 +78,6 @@ class LayersBuilder:
         x = np.log(2 * window + 1)
         y = np.log(intensity + 1)
         return apply_method(list(zip(x, y)))
-
 
     # /// <summary>
     # /// Вычисление суммарной интенсивности пикселей в прямоугольнике

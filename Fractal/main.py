@@ -8,6 +8,13 @@ from converter import convert
 
 inputDirectory = "C:\Pictures"
 
+inputDirectory = "C:\Pictures"
+inputFile = "2.jpg"
+path = os.path.join(inputDirectory, inputFile)
+img = cv2.imread(path, 1)
+
+converted_image = converter.convert(img, converter_types.GrayScaleMid)
+
 
 def main():
     print("Создайте папку C:\\Pictures, сохраните в ней тестовое изображение\n"
@@ -55,7 +62,6 @@ def main():
 
     spectrum = spectrum_builder.calculate_spectrum(layers, singularityBounds, 0.2)
     file = open("guru99.txt", "w+")
-    
     print(spectrum)
 
 
