@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 
 from least_squares import apply_method
@@ -9,24 +7,20 @@ from structures import *
 
 class LayersBuilder:
 
+    max_window_size = 7
+
     def __init__(self, img):
         self.image = img
-        self.height = img.shape[0]
-        self.width = img.shape[1]
-
-    # Двумерный массив плотности
-    Densities = np.array([])
+        self.height = img.shape[0] - self.max_window_size * 2
+        self.width = img.shape[1] - self.max_window_size * 2
 
     # <summary>
     # Определение границ сингулярности изображения
     # </summary>
     # <returns>Интервал сингулярностей изображения</returns>
 
-    def get_singularity_bounds(self):
-        # заполняем матрицу плотности
-        self.calculate_density()
-
-        densityValues = self.Densities
+    @staticmethod
+    def get_singularity_bounds(densityValues):
         return Interval(np.amin(densityValues), np.amax(densityValues))
 
     # /// <summary>
@@ -37,7 +31,7 @@ class LayersBuilder:
     # /// <returns>Список слоёв, каждый из которых - список точек</returns>
 
     # Interval singularityBounds, double singularityStep
-    def split_by_layers(self, singularityBounds, singularityStep):
+    def split_by_layers(self, singularityBounds, singularityStep, densityValues):
         layers = list()
         sin = singularityBounds.begin
         while sin <= singularityBounds.end:
@@ -47,7 +41,7 @@ class LayersBuilder:
 
             for i in range(0, self.height):
                 for j in range(0, self.width):
-                    if sin <= self.Densities[i, j] < sin + singularityStep:
+                    if sin <= densityValues[i, j] < sin + singularityStep:
                         points.append(Point(i, j))
 
             layers.append(Layer(points, layerSingularity))
@@ -58,14 +52,19 @@ class LayersBuilder:
     # /// <summary>
     # /// Вычисление функции плотности для всех точек изображения
     # /// </summary>
+    # /// <returns>Матрица плотности</returns>
 
     def calculate_density(self):
-        self.Densities = np.array([[None] * self.width] * self.height)
-        for i in range(0, self.height):
-            for j in range(0, self.width):
+        width = self.width
+        height = self.height
+        densities = np.array([[None] * width] * height)
+        for i in range(self.max_window_size, height + self.max_window_size):
+            for j in range(self.max_window_size, self.width + self.max_window_size):
                 point = Point(i, j)
                 density = self.__calculate_density_in_point(point)
-                self.Densities[i, j] = density
+                densities[point.x - self.max_window_size, point.y - self.max_window_size] = density
+
+        return densities
 
     # /// <summary>
     # /// Вычисление функции плотности в окрестности данной точки
@@ -74,16 +73,11 @@ class LayersBuilder:
     # /// <returns>Значение функции плотности в окрестности данной точки</returns>
 
     def __calculate_density_in_point(self, point):
-        points = list()
-        window = [2, 3, 4, 5, 7]  # максимальный размер окна?
-        intensity = self.__calculate_intensity(point, window)
-
-        for i in range(0, len(window)):
-            x = math.log(2 * window[i] + 1)
-            y = math.log(intensity[i] + 1)
-            cord = (x, y)
-            points.append(cord)
-        return apply_method(points)
+        window = np.array([2, 3, 4, 5, 7])
+        intensity = np.array(self.__calculate_intensity(point, window))
+        x = np.log(2 * window + 1)
+        y = np.log(intensity + 1)
+        return apply_method(list(zip(x, y)))
 
     # /// <summary>
     # /// Вычисление суммарной интенсивности пикселей в прямоугольнике
@@ -94,18 +88,8 @@ class LayersBuilder:
 
     def __calculate_intensity(self, point, windowSizes):
         intensities = list()
-
+        img = self.image
         for window in windowSizes:
-            intensity = 0
-            start_x_coord = max(0, point.x - window) # не позволяет получить отриц значение
-            end_x_coord = min(point.x + window, self.height - 1)
-            start_y_coord = max(0, point.y - window)
-            end_y_coord = min(point.y + window, self.width - 1)
-
-            for i in range(start_x_coord, end_x_coord + 1):
-                for j in range(start_y_coord, end_y_coord + 1):
-                    intensity += self.image[i, j]
-
+            intensity = np.sum(img[(point.x - window):(point.x + window + 1), (point.y - window):(point.y + window + 1)])
             intensities.append(intensity)
-
         return intensities

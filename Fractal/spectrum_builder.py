@@ -14,6 +14,7 @@ class SpectrumBuilder:
         self.height = img.shape[0]
         self.width = img.shape[1]
 
+    max_window_size = 7
     #    /// <summary>
     #    /// Вычисление мультифрактального спектра: создание уровней и измерение их размерности
     #    /// </summary>
@@ -41,8 +42,9 @@ class SpectrumBuilder:
     # /// <returns>Изображение слоя и его фрактальная размерность</returns>
 
     def __create_and_measure_layer(self, layer):
-
-        layer_image = 255 * np.ones(shape=[self.height, self.width, 3], dtype=np.uint8)
+        new_height = self.height - self.max_window_size * 2
+        new_width = self.width - self.max_window_size * 2
+        layer_image = 255 * np.ones(shape=[new_height, new_width, 3], dtype=np.uint8)
 
         for point in layer.Points:
             layer_image[point.x, point.y] = (0, 0, 0)
@@ -60,7 +62,7 @@ class SpectrumBuilder:
         min_singularity = str(round(layer.SingularityBounds.begin, 2))
         max_singularity = str(round(layer.SingularityBounds.end, 2))
 
-        layer_name = str.join(" ", ["layer", min_singularity, max_singularity, ".jpg"])
+        layer_name = "layer(" + min_singularity + "-" + max_singularity + ")" + ".jpg"
         path_to_image = "C:\Pictures"
         abs_path = os.path.join(path_to_image, layer_name)
 
@@ -93,9 +95,11 @@ class SpectrumBuilder:
 
     def __calculate_black_windows(self, layers_img, window):
         black_windows = 0
+        new_height = self.height - self.max_window_size * 2
+        new_width = self.width - self.max_window_size * 2
 
-        for i in range(0, self.height - window, window):
-            for j in range(0, self.width - window, window):
+        for i in range(0, new_height - window, window):
+            for j in range(0, new_width - window, window):
                 if self.__has_black_pixel(layers_img, i, j, window):
                     black_windows += 1
 
@@ -103,10 +107,8 @@ class SpectrumBuilder:
 
     @staticmethod
     def __has_black_pixel(layers_img, start_x, start_y, window):
-        for i in range(start_x, start_x + window):
-            for j in range(start_y, start_y + window):
-                color = layers_img[i, j]
-                if color[0] == color[1] == color[2] == 0:
-                    return True
-
+        if (np.sum(layers_img[start_x:start_x + window, start_y:start_y + window])
+                == np.sum(layers_img[start_x:start_x + window, start_y:start_y + window, 1])
+                == np.sum(layers_img[start_x:start_x + window, start_y:start_y + window, 2] == 0)):
+            return True
         return False
