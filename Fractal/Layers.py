@@ -5,6 +5,6 @@
 
 class Layer:
 
-    def __init__(self, points, singularityBounds):
-        self.Points = points
-        self.SingularityBounds = singularityBounds
+    def __init__(self, points, singularity_bounds):
+        self.points = points
+        self.singularity_bounds = singularity_bounds

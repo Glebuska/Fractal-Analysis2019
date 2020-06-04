@@ -1,19 +1,33 @@
 import cv2
 import os
+import time
+
+import numpy as np
 
 from layers_builder import LayersBuilder
 from spectrum_builder import SpectrumBuilder
 
 from converter import convert
 
-inputDirectory = "C:\Pictures"
+inputDirectory = r"C:\Pictures"
+dir_list = os.listdir(inputDirectory)
+directories = list(filter(lambda x: "Layers " in x, dir_list))
 
-inputDirectory = "C:\Pictures"
-inputFile = "2.jpg"
-path = os.path.join(inputDirectory, inputFile)
-img = cv2.imread(path, 1)
 
-converted_image = converter.convert(img, converter_types.GrayScaleMid)
+def create_directory():
+    length = len(directories)
+    if length > 0:
+        directories.sort()
+        num_of_directory = int(directories[-1][-1]) + 1
+        new_dir = os.path.join(inputDirectory, "Layers " + str(num_of_directory))
+        path = os.path.join(inputDirectory, new_dir)
+        os.mkdir(path=path)
+        return path
+    else:
+        new_dir = os.path.join(inputDirectory, "Layers 0")
+        path = os.path.join(inputDirectory, new_dir)
+        os.mkdir(path=path)
+        return path
 
 
 def main():
@@ -23,7 +37,6 @@ def main():
     print("Если вы хотите использовать другой путь, введите его целиком в формате "
           "C:\\test\image1.jpg")
     input_data = input()
-
     if ":" in input_data:
         img = cv2.imread(input_data, 1)
     else:
@@ -48,21 +61,30 @@ def main():
     except ValueError:
         raise Exception("Неверный номер алгоритма")
 
-    converted_image = convert(img, convert_number)
+    print("Выберите шаг, например 0.2")
+    step = float(input())
+    print("Вычисление...")
 
-    layersBuilder = LayersBuilder(converted_image)
+    converted_image = convert(img, convert_number).astype(np.int64)
 
-    densityValues = layersBuilder.calculate_density()
+    windows = np.array([2, 3, 4, 5, 7])
+    layers_builder = LayersBuilder(converted_image, windows)
 
-    singularityBounds = layersBuilder.get_singularity_bounds(densityValues)
+    density_values = layers_builder.calculate_density()
 
-    layers = layersBuilder.split_by_layers(singularityBounds, 0.2, densityValues)
+    singularity_bounds = layers_builder.get_singularity_bounds(density_values)
 
-    spectrum_builder = SpectrumBuilder(img)
+    layers = layers_builder.split_by_layers(singularity_bounds, step, density_values)
 
-    spectrum = spectrum_builder.calculate_spectrum(layers, singularityBounds, 0.2)
-    file = open("guru99.txt", "w+")
+    path_to_directory = create_directory()
+
+    spectrum_builder = SpectrumBuilder(img, path_to_directory, windows)
+
+    spectrum = spectrum_builder.calculate_spectrum(layers, singularity_bounds, step)
+
     print(spectrum)
+
+    print("Результаты сохранены в исходной папке, доброго дня!")
 
 
 main()

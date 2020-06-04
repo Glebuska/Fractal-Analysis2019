@@ -5,8 +5,9 @@ from converter_types import ConverterType
 
 print(ConverterType.GrayScaleCV.value)
 
+
 def convert(image, type):
-    if type == ConverterType.GrayScaleCV.value
+    if type == ConverterType.GrayScaleCV.value:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     elif type == ConverterType.RGB_Red.value:
         image = image[:, :, 2]

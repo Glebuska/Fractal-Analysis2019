@@ -1,4 +1,4 @@
-import statistics
+import numpy as np
 # /// <summary>
 # /// Уточнение результата вычислений с помощью МНК
 # /// </summary>
@@ -16,3 +16,4 @@ def apply_method(points):
         xy_sum += point[0] * point[1]
     result = (n * xy_sum - x_sum * y_sum) / (n * x_sqr_sum - x_sum * x_sum)
     return result
+
