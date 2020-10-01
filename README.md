@@ -11,4 +11,4 @@ Supervised by Nataly B. Ampilova
 
 # Примеры
 
-Примеры вы можете [увидеть тут]()
+Примеры вы можете [увидеть тут](https://github.com/Glebuska/Fractal-Analysis2019/tree/master/Examples)
